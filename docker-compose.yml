@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  app:
+    build:
+      context: ./app # Путь к директории с Go-приложением
+    env_file:
+      - ./app/.env
+    environment:
+      - DATABASE_URL=postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME
+      - KAFKA_BROKER=$KAFKA_BROKER
+      - ZOOKEEPER_SERVERS=$ZOOKEEPER_SERVERS
+    ports:
+      - "8080:8080" # Порт, на котором работает Go-приложение
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    environment:
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+    ports:
+      - "9092:9092"
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      - ZOOKEEPER_CLIENT_PORT=2181
+    ports:
+      - "2181:2181"
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=$DB_USER
+      - POSTGRES_PASSWORD=$DB_PASSWORD
+      - POSTGRES_DB=$DB_NAME
+    ports:
+      - "5432:5432"
+
+  
